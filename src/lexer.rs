@@ -5,6 +5,7 @@ use crate::errors::{ErrorKind, ModenaError, Result};
 
 /// Tokens
 // TODO: replace "word" and "number" and etc. with their translation (once we know them)
+#[derive(Clone, Debug)]
 pub enum TokenKind {
     /// Question marks are good because you clearly see that the question is a sentence.
     QuestionMark, // ?

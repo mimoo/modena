@@ -1,4 +1,4 @@
-use miette::{Diagnostic, NamedSource, SourceSpan};
+use miette::{Diagnostic, SourceSpan};
 use thiserror::Error;
 
 use crate::lexer::Span;

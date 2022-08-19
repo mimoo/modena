@@ -77,7 +77,7 @@ pub fn check(tokens: &[Token]) -> Result<()> {
             }
         }
 
-        let previous = Some(token);
+        previous = Some(token.kind.clone());
     }
 
     // make sure that we end with a period

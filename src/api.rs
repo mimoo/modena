@@ -1,9 +1,15 @@
-use crate::{errors::Result, lexer, parser, syntax_checker};
+use miette::IntoDiagnostic;
 
-pub fn parse(input: &str) -> Result<String> {
+use crate::{lexer, parser, syntax_checker};
+
+fn parse_inner(input: &str) -> miette::Result<String> {
     let tokens = lexer::parse(input)?;
     syntax_checker::check(&tokens)?;
-    parser::parse(&tokens)
+    parser::parse(&tokens).into_diagnostic()
+}
+
+pub fn parse(input: &str) -> miette::Result<String> {
+    parse_inner(input).map_err(|e| e.with_source_code(input.to_string()))
 }
 
 #[cfg(test)]
@@ -30,10 +36,7 @@ mod tests {
     #[test]
     fn test_sentences() {
         for (input, expected) in sentences() {
-            let translated = match parse(input) {
-                Ok(s) => s,
-                Err(e) => panic!("error in the translation of \"{input}\": {e}"),
-            };
+            let translated = parse(input).unwrap();
             if translated != expected {
                 panic!("the translation of \"{input}\" was expected to be \"{expected}\" but was \"{translated}\"");
             }
