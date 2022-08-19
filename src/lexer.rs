@@ -1,6 +1,8 @@
 //! The role of the lexer is to parse a string as a series of tokens.
 //! It will also do simple checks like, make sure that all characters make sense (no uppercase, for example).
 
+use crate::errors::{ErrorKind, ModenaError, Result};
+
 /// Tokens
 // TODO: replace "word" and "number" and etc. with their translation (once we know them)
 pub enum TokenKind {
@@ -24,7 +26,8 @@ pub struct Token {
     pub span: Span,
 }
 
-pub struct Span(usize, usize);
+#[derive(Debug, Clone, Copy)]
+pub struct Span(pub usize, pub usize);
 
 impl Token {
     pub fn new(kind: TokenKind, span: Span) -> Token {
@@ -32,7 +35,7 @@ impl Token {
     }
 }
 
-pub fn parse(input: &str) -> Result<Vec<Token>, &'static str> {
+pub fn parse(input: &str) -> Result<Vec<Token>> {
     let mut tokens = Vec::new();
     let mut chars = input.chars().enumerate();
 
@@ -77,7 +80,10 @@ pub fn parse(input: &str) -> Result<Vec<Token>, &'static str> {
             '.' => tokens.push(Token::new(TokenKind::Period, Span(offset, 1))),
             '?' => tokens.push(Token::new(TokenKind::QuestionMark, Span(offset, 1))),
             ' ' => tokens.push(Token::new(TokenKind::Whitespace, Span(offset, 1))),
-            x => return Err("character {x} not recognized"),
+            x => {
+                let span = Span(offset, 1);
+                return Err(ModenaError::new(ErrorKind::UnrecognizedChar(x), span));
+            }
         };
     }
     Ok(tokens)

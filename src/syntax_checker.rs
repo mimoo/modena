@@ -5,40 +5,58 @@
 //! - space between words and numbers
 //! - no space between word and ponctuation?
 
-use crate::lexer::{Token, TokenKind};
+use crate::{
+    errors::{ErrorKind, ModenaError, Result},
+    lexer::{Span, Token, TokenKind},
+};
 
-pub fn check(tokens: &[Token]) -> Result<(), &'static str> {
+pub fn check(tokens: &[Token]) -> Result<()> {
     let mut previous: Option<TokenKind> = None;
 
     for token in tokens {
         match token.kind {
             TokenKind::QuestionMark => {
                 if !matches!(previous, Some(TokenKind::Whitespace)) {
-                    return Err("question marks must be preceded by whitespace");
+                    return Err(ModenaError::new(
+                        ErrorKind::QuestionMarkNotPrecededByWhitespace,
+                        token.span,
+                    ));
                 }
             }
             TokenKind::Period => {
                 if !matches!(previous, Some(TokenKind::Whitespace)) {
-                    return Err("periods must be preceded by whitespace");
+                    return Err(ModenaError::new(
+                        ErrorKind::PeriodNotPrecededByWhitespace,
+                        token.span,
+                    ));
                 }
             }
             TokenKind::Word(_) => {
                 if let Some(previous) = &previous {
                     if !matches!(previous, TokenKind::Whitespace | TokenKind::Dash) {
-                        return Err("words must be preceded by whitespace or dashes");
+                        return Err(ModenaError::new(
+                            ErrorKind::WordNotPrecededByWhitespaceOrDash,
+                            token.span,
+                        ));
                     }
                 }
             }
             TokenKind::Number(_) => {
                 if let Some(previous) = &previous {
                     if !matches!(previous, TokenKind::Whitespace) {
-                        return Err("numbers must be preceded by whitespace");
+                        return Err(ModenaError::new(
+                            ErrorKind::NumberNotPrecededByWhitespace,
+                            token.span,
+                        ));
                     }
                 }
             }
             TokenKind::Dash => {
                 if !matches!(previous, Some(TokenKind::Word(..))) {
-                    return Err("dashes separate words");
+                    return Err(ModenaError::new(
+                        ErrorKind::DashNotUsedToSeparateWords,
+                        token.span,
+                    ));
                 }
             }
             TokenKind::Whitespace => {
@@ -51,9 +69,10 @@ pub fn check(tokens: &[Token]) -> Result<(), &'static str> {
                             | TokenKind::Period
                     )
                 ) {
-                    return Err(
-                        "whitespace must be preceded by a word, a number, or some punctuation",
-                    );
+                    return Err(ModenaError::new(
+                        ErrorKind::WhitespaceNotPrecededByWordNumberOrPunctuation,
+                        token.span,
+                    ));
                 }
             }
         }
@@ -63,7 +82,10 @@ pub fn check(tokens: &[Token]) -> Result<(), &'static str> {
 
     // make sure that we end with a period
     if !matches!(previous, Some(TokenKind::Period)) {
-        return Err("sentence must end with a period");
+        return Err(ModenaError::new(
+            ErrorKind::SentenceMustEndWithPeriod,
+            Span(usize::MAX, 0),
+        ));
     }
 
     return Ok(());

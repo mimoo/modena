@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use once_cell::sync::Lazy;
 
-use crate::lexer::{Token, TokenKind};
+use crate::{
+    errors::Result,
+    lexer::{Token, TokenKind},
+};
 
 static DICTIONARY: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut dictionary = HashMap::new();
@@ -16,7 +19,7 @@ static DICTIONARY: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     dictionary
 });
 
-pub fn parse(tokens: &[Token]) -> Result<String, &'static str> {
+pub fn parse(tokens: &[Token]) -> Result<String> {
     let mut sentence = String::new();
     let mut sentences: Vec<String> = vec![];
     let mut tokens = tokens.iter();

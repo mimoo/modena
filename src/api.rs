@@ -1,6 +1,6 @@
-use crate::{lexer, parser, syntax_checker};
+use crate::{errors::Result, lexer, parser, syntax_checker};
 
-pub fn parse(input: &str) -> Result<String, &'static str> {
+pub fn parse(input: &str) -> Result<String> {
     let tokens = lexer::parse(input)?;
     syntax_checker::check(&tokens)?;
     parser::parse(&tokens)
