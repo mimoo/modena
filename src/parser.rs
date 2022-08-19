@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use once_cell::sync::Lazy;
 
-use crate::lexer::Token;
+use crate::lexer::{Token, TokenKind};
 
 static DICTIONARY: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut dictionary = HashMap::new();
@@ -22,16 +22,16 @@ pub fn parse(tokens: &[Token]) -> Result<String, &'static str> {
     let mut tokens = tokens.iter();
 
     while let Some(token) = tokens.next() {
-        match token {
-            Token::QuestionMark => sentence.push_str("? "),
-            Token::Period => {
+        match &token.kind {
+            TokenKind::QuestionMark => sentence.push_str("? "),
+            TokenKind::Period => {
                 sentences.push(sentence.clone());
                 sentence.truncate(0);
             }
-            Token::Word(w) => sentence.push_str(DICTIONARY[w.as_str()]),
-            Token::Number(n) => sentence.push_str(n),
-            Token::Dash => todo!(),
-            Token::Whitespace => sentence.push_str(" "),
+            TokenKind::Word(w) => sentence.push_str(DICTIONARY[w.as_str()]),
+            TokenKind::Number(n) => sentence.push_str(n),
+            TokenKind::Dash => todo!(),
+            TokenKind::Whitespace => sentence.push_str(" "),
         }
     }
 
