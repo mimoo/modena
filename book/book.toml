@@ -4,3 +4,9 @@ language = "en"
 multilingual = false
 src = "src"
 title = "Modena"
+
+[output.html]
+site-url = "/modena/"
+use-site-url-as-root = true
+curly-quotes = true
+git-repository-url = "https://www.github.com/mimoo/modena"
