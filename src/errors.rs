@@ -19,12 +19,9 @@ impl Into<SourceSpan> for Span {
 
 #[derive(Error, Debug, Diagnostic)]
 #[error("oops!")]
-#[diagnostic(
-    code(oops::my::bad),
-    url(docsrs),
-    help("try doing it better next time?")
-)]
+#[diagnostic()]
 pub struct ModenaError {
+    #[help]
     kind: ErrorKind,
     #[label("This bit here")]
     span: Span,
@@ -40,18 +37,28 @@ impl ModenaError {
 pub enum ErrorKind {
     #[error("character {0} not recognized")]
     UnrecognizedChar(char),
+
     #[error("question marks must be preceded by whitespace")]
     QuestionMarkNotPrecededByWhitespace,
+
     #[error("periods must be preceded by whitespace")]
     PeriodNotPrecededByWhitespace,
+
     #[error("words must be preceded by whitespace or dashes")]
     WordNotPrecededByWhitespaceOrDash,
+
     #[error("numbers must be preceded by whitespace")]
     NumberNotPrecededByWhitespace,
+
     #[error("dashes must be used to separate words")]
     DashNotUsedToSeparateWords,
+
     #[error("whitespace must be preceded by a word, a number, or some punctuation")]
     WhitespaceNotPrecededByWordNumberOrPunctuation,
+
     #[error("sentence must end with a period")]
     SentenceMustEndWithPeriod,
+
+    #[error("modena word does not exist")]
+    UnknownWord,
 }

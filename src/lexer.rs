@@ -22,6 +22,7 @@ pub enum TokenKind {
     // TODO: what about + ,
 }
 
+#[derive(Debug, Clone)]
 pub struct Token {
     pub kind: TokenKind,
     pub span: Span,
@@ -45,7 +46,7 @@ pub fn parse(input: &str) -> Result<Vec<Token>> {
 
     while let Some((offset, char)) = chars.next() {
         // if it's a character, we are parsing a word
-        if matches!(char, 'a'..='z') && !matches!(char, 'f' | 'g' | 'h' | 'q' | 'r' | 'x' | 'z') {
+        if matches!(char, 'a'..='z') && !matches!(char, 'g' | 'h' | 'q' | 'r' | 'x' | 'z') {
             if let Some((_, word)) = in_word.as_mut() {
                 // we're either already parsing a word
                 word.push_str(&char.to_string());
@@ -87,5 +88,19 @@ pub fn parse(input: &str) -> Result<Vec<Token>> {
             }
         };
     }
+
+    // we reached the end, but we might have been parsing a word
+    // we could just check for that, but it's incorrect to not have a period or question mark at the end of a sentence in modena
+    // so let's just check that
+    if let Some(t) = tokens.last() {
+        use TokenKind::*;
+        if !matches!(t.kind, Period | QuestionMark) {
+            return Err(ModenaError::new(
+                ErrorKind::SentenceMustEndWithPeriod,
+                t.span, // TODO: this is the wrong span
+            ));
+        }
+    }
+
     Ok(tokens)
 }

@@ -7,7 +7,7 @@
 
 use crate::{
     errors::{ErrorKind, ModenaError, Result},
-    lexer::{Span, Token, TokenKind},
+    lexer::{Token, TokenKind},
 };
 
 pub fn check(tokens: &[Token]) -> Result<()> {
@@ -80,13 +80,9 @@ pub fn check(tokens: &[Token]) -> Result<()> {
         previous = Some(token.kind.clone());
     }
 
-    // make sure that we end with a period
-    if !matches!(previous, Some(TokenKind::Period)) {
-        return Err(ModenaError::new(
-            ErrorKind::SentenceMustEndWithPeriod,
-            Span(usize::MAX, 0),
-        ));
-    }
+    // we already check that the a sentence ends with a period in lexer
+    use TokenKind::*;
+    assert!(matches!(previous, Some(Period | QuestionMark)));
 
     return Ok(());
 }

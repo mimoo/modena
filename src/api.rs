@@ -1,11 +1,9 @@
-use miette::IntoDiagnostic;
-
 use crate::{lexer, parser, syntax_checker};
 
 fn parse_inner(input: &str) -> miette::Result<String> {
     let tokens = lexer::parse(input)?;
     syntax_checker::check(&tokens)?;
-    parser::parse(&tokens).into_diagnostic()
+    Ok(parser::parse(&tokens)?)
 }
 
 pub fn parse(input: &str) -> miette::Result<String> {
@@ -20,14 +18,14 @@ mod tests {
 
     fn sentences() -> HashMap<&'static str, &'static str> {
         let mut map = HashMap::new();
-        map.insert("jo pupi tu", "I love you.");
+        map.insert("jo pupi tu .", "I love you.");
         map.insert(
-            "jo nu-ama asse potato-fine",
+            "jo nu-ama asse potato-fine .",
             "I don't have enough french fries.",
         );
-        map.insert("jo yu-la mite ban-dessi", "I'm typing on a keyboard.");
+        map.insert("jo yu-la mite ban-dessi .", "I'm typing on a keyboard.");
         map.insert(
-            "tu kana-done ko kana-la ok ma?",
+            "tu kana-done ko kana-la ok ma ?",
             "Did you find what you were looking for?",
         );
         map
@@ -37,6 +35,7 @@ mod tests {
     fn test_sentences() {
         for (input, expected) in sentences() {
             let translated = parse(input).unwrap();
+
             if translated != expected {
                 panic!("the translation of \"{input}\" was expected to be \"{expected}\" but was \"{translated}\"");
             }
